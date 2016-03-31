@@ -5,7 +5,7 @@ var DBService = require('./db_service');
 
 var MongoService = function() {
   this.db = null;
-  this.MODELS = {
+  this.MODEL_TYPES = {
     'LOGS': 'logs'
   };
 };
@@ -28,18 +28,23 @@ MongoService.prototype.connect = function(callback) {
   });
 };
 
-MongoService.prototype.getModel = function(modelName) {
+MongoService.prototype.getModel = function(modelType, modelName) {
   var self = this;
   var schema = null;
-  switch (modelName) {
-    case self.MODELS.LOGS:
+  var model = null;
+  switch (modelType) {
+    case self.MODEL_TYPES.LOGS:
       schema = {
         level: String,
         module: String,
         message: String,
         date: { type: Date, default: Date.now }
       };
-      return mongoose.model(modelName, new mongoose.Schema(schema));
+      model = mongoose.models[modelName];
+      if (!model) {
+        model = mongoose.model(modelName, new mongoose.Schema(schema));
+      }
+      return model;
       break;
     default:
       return null;

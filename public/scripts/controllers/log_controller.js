@@ -18,7 +18,11 @@ LogController.prototype.saveLog = function(req, res) {
 LogController.prototype.getList = function(req, res) {
   var limit = req.query.limit || DEFAULT_LIMIT;
   var offset = req.query.offset || DEFAULT_OFFSET;
-  logService.list(limit, offset, function(err, data) {
+  var user = req.query.user;
+  if (!user) {
+    return req.status(500).send('Property user missing');
+  }
+  logService.list(user, limit, offset, function(err, data) {
     if (err) {
       return res.status(500).send(data);
     }
@@ -27,11 +31,25 @@ LogController.prototype.getList = function(req, res) {
 };
 
 LogController.prototype.searchLogs = function(req, res) {
-  var conditions = req.body;
-  var limit = req.query.limit || DEFAULT_LIMIT;
-  logService.search(conditions, limit, function(err, data) {
+  var queryParams = req.query;
+  var user = queryParams.user;
+  var limit = queryParams.limit;
+  var conditions = {};
+  if (queryParams.level) {
+    conditions.level = queryParams.level;
+  }
+  if (queryParams.date) {
+    conditions.date = queryParams.date;
+  }
+  if (!conditions.level && !conditions.date) {
+    return req.status(500).send('Filter property missing');
+  }
+  if (!user) {
+    return req.status(500).send('Property user missing');
+  }
+  logService.search(user, conditions, limit, function(err, data) {
     if (err) {
-      return res.status(500).send(data);
+      return res.status(500).send(err);
     }
     return res.status(200).send(data);
   });

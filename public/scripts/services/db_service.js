@@ -1,6 +1,6 @@
 var DBService = function() {
   this.db = null;
-  this.MODELS = {};
+  this.MODEL_TYPES = {};
 };
 
 DBService.prototype.getModel = function(modelName) {

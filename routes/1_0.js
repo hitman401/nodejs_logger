@@ -5,6 +5,6 @@ var router = express.Router();
 
 router.get('/log', logController.getList);
 router.post('/log', logController.saveLog);
-router.post('/log/search', logController.searchLogs);
+router.get('/log/search', logController.searchLogs);
 
 module.exports = router;

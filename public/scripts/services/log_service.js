@@ -1,20 +1,32 @@
 var dao = require('./dao_service');
 
+var LOG_SUFFIX = "_logs";
+
 var LogService = function() {
   this.FILTER_BY = {
     'LEVEL': 'level',
     'DATE': 'date'
   };
+  this.LogModel = null;
   this.dbConnector = dao.getDBConnector();
-  this.LogModel = this.dbConnector.getModel(this.dbConnector.MODELS.LOGS);
-  if (!this.LogModel) {
+};
+
+LogService.prototype.prepareModel = function(user) {
+  var self = this;
+  var modelName = user + LOG_SUFFIX;
+  self.LogModel = self.dbConnector.getModel(self.dbConnector.MODEL_TYPES.LOGS, modelName);
+  if (!self.LogModel) {
     throw 'Model not found';
   }
 };
 
 LogService.prototype.save = function(payload, callback) {
   var self = this;
-  self.dbConnector.save(self.LogModel, payload, function(err) {
+  self.prepareModel(payload.user);
+  var logData = payload;
+  delete logData.user;
+
+  self.dbConnector.save(self.LogModel, logData, function(err) {
     if (err) {
       return callback(err)
     }
@@ -22,42 +34,26 @@ LogService.prototype.save = function(payload, callback) {
   });
 };
 
-LogService.prototype.list = function(limit, offset, callback) {
+LogService.prototype.list = function(user, limit, offset, callback) {
   var self = this;
+  self.prepareModel(user);
   return self.dbConnector.list(self.LogModel, limit, offset, callback);
 };
 
-LogService.prototype.search = function(conditions, limit, callback) {
+LogService.prototype.search = function(user, conditions, limit, callback) {
   var self = this;
   var query = {};
-
-  if (!conditions.filterBy) {
-    return callback('Missing filterBy property');
+  self.prepareModel(user);
+  if (conditions.level) {
+    query.level = {
+      $in: conditions.level.split(',')
+    }
   }
-  
-  if (conditions.filterBy === self.FILTER_BY.LEVEL) {
-    if (!conditions.levels) {
-      return callback('Missing levels property');
+  if (conditions.date) {
+    query.date = {
+      $gte: conditions.date
     }
-    if (typeof conditions.levels !== 'object') {
-      return callback('Property levels must be an array');
-    }
-    query.level = {$in: conditions.levels};
   }
-
-  if (conditions.filterBy === self.FILTER_BY.DATE) {
-    if (!conditions.startDate) {
-      return callback('Missing startDate property');
-    }
-    try {
-      var startDate = new Date(conditions.startDate);
-      conditions.startDate = startDate.toISOString();
-    } catch (e) {
-      return callback(e);
-    }
-    query.date = {$gte: conditions.startDate};
-  }
-
   return self.dbConnector.search(self.LogModel, query, limit, callback);
 };
 
