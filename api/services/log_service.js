@@ -20,11 +20,10 @@ LogService.prototype.prepareModel = function(user) {
   }
 };
 
-LogService.prototype.save = function(payload, callback) {
+LogService.prototype.save = function(userId, payload, callback) {
   var self = this;
-  self.prepareModel(payload.user);
+  self.prepareModel(userId);
   var logData = payload;
-  delete logData.user;
 
   self.dbConnector.save(self.LogModel, logData, function(err) {
     if (err) {
@@ -45,6 +44,7 @@ LogService.prototype.search = function(user, conditions, limit, callback) {
   var query = {};
   self.prepareModel(user);
   if (conditions.level) {
+    conditions.level = conditions.level.toUpperCase();
     query.level = {
       $in: conditions.level.split(',')
     }

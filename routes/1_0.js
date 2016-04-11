@@ -1,10 +1,10 @@
 var express = require('express');
-var logController = require('../public/scripts/controllers/log_controller');
+var logController = require('../api/controllers/log_controller');
 
 var router = express.Router();
 
-router.get('/log', logController.getList);
-router.post('/log', logController.saveLog);
-router.get('/log/search', logController.searchLogs);
+router.get('/logs/:userId', logController.getList);
+router.post('/logs/:userId', logController.saveLog);
+router.get('/logs/search/:userId', logController.searchLogs);
 
 module.exports = router;

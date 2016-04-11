@@ -1,5 +1,5 @@
 var util = require('util');
-var config = require('../../../config.json');
+var config = require('../../config.json');
 var mongoose = require('mongoose');
 var DBService = require('./db_service');
 

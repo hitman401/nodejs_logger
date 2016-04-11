@@ -1,0 +1,10 @@
+<div ng-controller="authCtrl">
+    <button ng-click="getUID()" ng-show="!uid">Get UID</button>
+    <div ng-show="uid">
+        <span>{{ uid }}</span>
+        <div style="margin: 10px">
+            <button ng-click="viewLogs(uid)">View Logs</button>
+            <button ng-click="getUID()">Get New UID</button>
+        </div>
+    </div>
+</div>

@@ -4,27 +4,37 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-var dao = require('./public/scripts/services/dao_service');
+var dao = require('./api/services/dao_service');
 
 var dbConnector = dao.getDBConnector();
 
 var app = express();
 
-// uncomment after placing your favicon in /public
-//app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+// uncomment after placing your favicon in /api
+//app.use(favicon(path.join(__dirname, 'api', 'favicon.ico')));
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
-
+// app.use(express.static(path.join(__dirname, 'api')));
+app.use(express.static(path.join(__dirname + '/views')));
+app.use('/stylesheets', express.static(path.join(__dirname + '/stylesheets')));
+app.use('/bower_components',  express.static(path.join(__dirname, '/bower_components')));
+app.use('/scripts', express.static(path.join(__dirname + '/scripts')));
 
 dbConnector.connect(function(err, data) {
   if (err) {
-    throw err;
+    throw 'Error' + err;
   }
   console.log(data);
   var routes_1_0 = require('./routes/1_0');
+
+
+  app.get('/',function(req,res){
+    res.sendFile('index.html');
+  });
+
+  // TODO change url
   app.use('/', routes_1_0);
 
   // catch 404 and forward to error handler

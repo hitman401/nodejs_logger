@@ -1,0 +1,30 @@
+<div ng-controller="logListCtrl">
+    <div>
+        <input class="filter" type="text" ng-model="filter"
+               placeholder="Type to filter the log messages from the list displayed below"/>
+        <select  ng-model="level" ng-change="updateCriteria(level)">
+            <option value="">
+                All
+            </option>
+            <option value="info">
+                Info
+            </option>
+            <option value="warn">
+                Warn
+            </option>
+            <option value="debug">
+                Debug
+            </option>
+            <option value="ffi">
+                FFI
+            </option>
+            <option value="success">
+                Success
+            </option>
+            <option value="error">
+                Error
+            </option>
+        </select>
+    </div>
+    <react-component name="LogList" props="{list: logs, filter: filter, isEndOfList: endOfRecords}"/>
+</div>
