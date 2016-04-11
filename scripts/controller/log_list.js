@@ -3,7 +3,7 @@ window.logVisualiser.controller('logListCtrl', ['$scope', '$state', '$stateParam
     if (!$stateParams.uid) {
       return $state.go('login');
     }
-    var PAGE_SIZE = 2;
+    var PAGE_SIZE = 10;
     var uid = $stateParams.uid;
 
     $scope.endOfRecords = false;
@@ -11,7 +11,9 @@ window.logVisualiser.controller('logListCtrl', ['$scope', '$state', '$stateParam
     var criteria = {};
 
     $scope.updateCriteria = function(level) {
-      criteria = level? {level: level} : {};
+      criteria = level ? {
+        level: level
+      } : {};
       $scope.logs = [];
       $scope.endOfRecords = false;
       $scope.search();
@@ -40,26 +42,42 @@ window.logVisualiser.controller('logListCtrl', ['$scope', '$state', '$stateParam
       });
     };
 
-    $scope.getLogs = function() {
+    $scope.list = function() {
       var filterParams = '';
       var baseUrl =
-      $http({
-        method: 'GET',
-        url: '/logs/' + uid + '?offset=' + $scope.logs.length + '&limit=' + PAGE_SIZE
-      }).then(function(response) {
-        if (response.data.length == 0 || response.data.length < PAGE_SIZE) {
-          $scope.endOfRecords = true;
-        }
-        if (response.data.length === 0) {
-          return;
-        }
-        $scope.logs = $scope.logs.concat(response.data);
-      }, function(err) {
-        console.error(err);
+        $http({
+          method: 'GET',
+          url: '/logs/' + uid + '?offset=' + $scope.logs.length + '&limit=' + PAGE_SIZE
+        }).then(function(response) {
+          // if (response.data.length == 0 || response.data.length < PAGE_SIZE) {
+          //   $scope.endOfRecords = true;
+          // }
+          if (response.data.length === 0) {
+            return;
+          }
+          // TODO integrate pagination
+          $scope.logs = $scope.logs.concat(response.data);
+        }, function(err) {
+          console.error(err);
+        });
+    };
+
+
+    var startWorker = function() {
+      var locationHash = location.hash.split('/');
+      var userId = locationHash[locationHash.length - 1];
+      var worker = new Worker('/scripts/message_worker.js?userId=' + userId);
+      worker.postMessage({
+        id: userId
+      });
+      worker.addEventListener('message', function(e) {
+        console.log('Recieved', e.data);
+        $scope.logs.push(JSON.parse(e.data));
+        $scope.$applyAsync();
       });
     };
 
-    $scope.getLogs();
-    window.scope = $scope;
+    $scope.list();
+    startWorker();
   }
 ]);

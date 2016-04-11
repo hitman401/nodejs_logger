@@ -1,4 +1,5 @@
 var logService = require('../services/log_service');
+var socketService = require('../services/socket_service');
 
 var DEFAULT_LIMIT = 10;
 var DEFAULT_OFFSET = 0;
@@ -12,7 +13,8 @@ LogController.prototype.saveLog = function(req, res) {
     if (err) {
       return res.status(500).send(err);
     }
-    res.status(200).send(data);
+    socketService.sendLog(data, userId);
+    res.status(200).send('Saved');
   });
 };
 
@@ -43,7 +45,8 @@ LogController.prototype.searchLogs = function(req, res) {
     conditions.date = queryParams.date;
   }
   if (!conditions.level && !conditions.date) {
-    return res.status(500).send('Filter property missing');
+    conditions.level = conditions.date = '';
+    // return res.status(500).send('Filter property missing');
   }
   if (!user) {
     return res.status(500).send('Property user missing');

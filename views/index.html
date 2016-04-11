@@ -17,13 +17,16 @@
     <script type="application/javascript" src="/scripts/controller/auth.js"></script>
     <script type="application/javascript" src="/scripts/controller/log_list.js"></script>
     <script type="application/javascript" src="/scripts/component/log_list.js"></script>
+    <!-- <script type="application/javascript" src="/scripts/message_worker.js"></script> -->
 </head>
 <body ng-app="log-visualiser">
   <div ui-view>
   </div>
   <script>
-    // var worker = new Worker('javascripts/message_worker.js');
-    // worker.postMessage({id: 1001});
+    // var locationHash = location.hash.split('/');
+    // var userId = locationHash[ locationHash.length - 1 ];
+    // var worker = new Worker('/scripts/message_worker.js?userId=' + userId);
+    // worker.postMessage({ id: userId });
     // worker.addEventListener('message', function(e) {
     //   console.log('Recieved', e.data);
     // });

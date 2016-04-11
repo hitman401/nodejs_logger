@@ -22,6 +22,9 @@ var LogList = React.createClass({
         if (this.props.filter && !matchFound && keys[j] === 'message') {
           matchFound = this.props.list[i][keys[j]].toLowerCase().indexOf(this.props.filter) > -1;
         }
+        if (keys[j] === 'date') {
+          this.props.list[i][keys[j]] = new Date(this.props.list[i][keys[j]]).toLocaleString();
+        }
         temp.push(React.DOM.td({key: j}, this.props.list[i][keys[j]]));
       }
       if (matchFound) {

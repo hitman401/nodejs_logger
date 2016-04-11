@@ -53,11 +53,11 @@ MongoService.prototype.getModel = function(modelType, modelName) {
 
 MongoService.prototype.save = function(Model, payload, callback) {
   var modelObj = new Model(payload);
-  modelObj.save(function(err) {
+  modelObj.save(function(err, data) {
     if (err) {
       return callback(err);
     }
-    return callback(null);
+    return callback(null, data);
   });
 };
 

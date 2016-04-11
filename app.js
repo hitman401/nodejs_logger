@@ -5,10 +5,11 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var dao = require('./api/services/dao_service');
-
 var dbConnector = dao.getDBConnector();
+var http = require('http');
 
 var app = express();
+app.set('http', http);
 
 // uncomment after placing your favicon in /api
 //app.use(favicon(path.join(__dirname, 'api', 'favicon.ico')));
@@ -16,11 +17,12 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
-// app.use(express.static(path.join(__dirname, 'api')));
+
 app.use(express.static(path.join(__dirname + '/views')));
 app.use('/stylesheets', express.static(path.join(__dirname + '/stylesheets')));
 app.use('/bower_components',  express.static(path.join(__dirname, '/bower_components')));
 app.use('/scripts', express.static(path.join(__dirname + '/scripts')));
+
 
 dbConnector.connect(function(err, data) {
   if (err) {
@@ -28,8 +30,6 @@ dbConnector.connect(function(err, data) {
   }
   console.log(data);
   var routes_1_0 = require('./routes/1_0');
-
-
   app.get('/',function(req,res){
     res.sendFile('index.html');
   });

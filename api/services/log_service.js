@@ -24,12 +24,11 @@ LogService.prototype.save = function(userId, payload, callback) {
   var self = this;
   self.prepareModel(userId);
   var logData = payload;
-
-  self.dbConnector.save(self.LogModel, logData, function(err) {
+  self.dbConnector.save(self.LogModel, logData, function(err, data) {
     if (err) {
       return callback(err)
     }
-    return callback(null, 'Saved');
+    return callback(null, data);
   });
 };
 
