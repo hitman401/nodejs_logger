@@ -1,5 +1,4 @@
 var logService = require('../services/log_service');
-var socketService = require('../services/socket_service');
 
 var DEFAULT_LIMIT = 10;
 var DEFAULT_OFFSET = 0;
@@ -7,13 +6,12 @@ var DEFAULT_OFFSET = 0;
 var LogController = function() {};
 
 LogController.prototype.saveLog = function(req, res) {
+  var self = this;
   var payload = req.body;
-  var userId = req.params.userId;
-  logService.save(userId, payload, function(err, data) {
+  logService.save(payload, function(err, data) {
     if (err) {
       return res.status(500).send(err);
     }
-    socketService.sendLog(data, userId);
     res.status(200).send('Saved');
   });
 };

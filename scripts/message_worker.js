@@ -4,11 +4,8 @@
 
 var socket = new WebSocket("ws://localhost:3000/");;
 
-
-
 socket.onmessage = function(evt) {
   var received_msg = evt.data;
-  console.log("Message is received :: " + evt.data);
   self.postMessage(evt.data);
 };
 

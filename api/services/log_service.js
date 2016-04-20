@@ -1,5 +1,4 @@
 var dao = require('./dao_service');
-
 var LOG_SUFFIX = "_logs";
 
 var LogService = function() {
@@ -11,23 +10,24 @@ var LogService = function() {
   this.dbConnector = dao.getDBConnector();
 };
 
-LogService.prototype.prepareModel = function(user) {
+LogService.prototype.prepareModel = function(logSrcId) {
   var self = this;
-  var modelName = user + LOG_SUFFIX;
+  var modelName = logSrcId + LOG_SUFFIX;
   self.LogModel = self.dbConnector.getModel(self.dbConnector.MODEL_TYPES.LOGS, modelName);
   if (!self.LogModel) {
     throw 'Model not found';
   }
 };
 
-LogService.prototype.save = function(userId, payload, callback) {
+LogService.prototype.save = function(logData, callback) {
   var self = this;
-  self.prepareModel(userId);
-  var logData = payload;
+  self.prepareModel(logData.id);
+  var socketService = require('../services/socket_service'); // TODO move this as global variable
   self.dbConnector.save(self.LogModel, logData, function(err, data) {
     if (err) {
       return callback(err)
     }
+    socketService.sendLog(data, logData.id);
     return callback(null, data);
   });
 };

@@ -1,3 +1,5 @@
+var logService = require('../services/log_service');
+
 var Socket = function() {
   this.sessions = {};
 };
@@ -10,7 +12,13 @@ Socket.prototype.register = function(server) {
   ws.on('connection', function(socket) {
     console.log('connected');
     socket.on('message', function(msg) {
-      msg = JSON.parse(msg);
+
+      try {
+        msg = msg.toString().replace(/\\/g, '/');
+        msg = JSON.parse(msg);
+      } catch(e) {
+        return console.log(e.message);
+      }
       switch (msg.type) {
         case 'register':
           if (!self.sessions[msg.id]) {
@@ -20,21 +28,21 @@ Socket.prototype.register = function(server) {
           self.sessions[msg.id].push(socket);
           break;
         default:
-          socket.send(JSON.stringify(msg));
+          logService.save(msg, function() {});
       }
     });
 
-    // socket.on('close', function(msg) {
-    //   if (!msg) {
-    //     return;
-    //   }
-    //   var userId = msg.id;
-    //   var index = self.sessions[userId].indexOf(socket);
-    //   if (index === -1) {
-    //     return;
-    //   }
-    //   self.sessions[userId].splice(index, 1);
-    // });
+    socket.on('close', function(msg) {
+      if (!msg) {
+        return;
+      }
+      var userId = msg.id;
+      var index = self.sessions[userId].indexOf(socket);
+      if (index === -1) {
+        return;
+      }
+      self.sessions[userId].splice(index, 1);
+    });
   });
 };
 
@@ -43,9 +51,8 @@ Socket.prototype.sendLog = function(log, userId) {
   if (!self.sessions[userId]) {
     return;
   }
-  console.log(log, userId);
   self.sessions[userId].forEach(function(socket) {
-    socket.emit('message', JSON.stringify(log));
+    socket.send(JSON.stringify(log));
   });
 };
 

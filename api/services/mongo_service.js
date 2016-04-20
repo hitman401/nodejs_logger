@@ -36,9 +36,12 @@ MongoService.prototype.getModel = function(modelType, modelName) {
     case self.MODEL_TYPES.LOGS:
       schema = {
         level: String,
+        time: { type: Date, default: Date.now },
+        thread: String,
         module: String,
-        message: String,
-        date: { type: Date, default: Date.now }
+        file: String,
+        line: String,
+        msg: String,
       };
       model = mongoose.models[modelName];
       if (!model) {
@@ -62,7 +65,7 @@ MongoService.prototype.save = function(Model, payload, callback) {
 };
 
 MongoService.prototype.list = function(Model, limit, offset, callback) {
-  Model.find().skip(offset).limit(limit).exec(callback);
+  Model.find().skip(offset).limit(limit).sort('-time').exec(callback);
 };
 
 MongoService.prototype.search = function(Model, query, limit, callback) {

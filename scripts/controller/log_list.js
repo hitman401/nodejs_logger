@@ -72,7 +72,7 @@ window.logVisualiser.controller('logListCtrl', ['$scope', '$state', '$stateParam
       });
       worker.addEventListener('message', function(e) {
         console.log('Recieved', e.data);
-        $scope.logs.push(JSON.parse(e.data));
+        $scope.logs.unshift(JSON.parse(e.data));
         $scope.$applyAsync();
       });
     };

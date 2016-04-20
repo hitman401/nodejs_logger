@@ -30,9 +30,6 @@ dbConnector.connect(function(err, data) {
   }
   console.log(data);
   var routes_1_0 = require('./routes/1_0');
-  app.get('/',function(req,res){
-    res.sendFile('index.html');
-  });
 
   // TODO change url
   app.use('/', routes_1_0);

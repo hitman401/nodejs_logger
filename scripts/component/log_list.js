@@ -1,7 +1,7 @@
 var LogList = React.createClass({
   render: function() {
     var colsHead = [];
-    var heading = ['Time', 'Level', 'Message'];
+    var heading = ['Level', 'Time', 'Thread', 'Module', 'File', 'Line', 'Message'];
     for (var i in heading) {
       colsHead.push(React.DOM.th({ key: i }, heading[i]));
     }
@@ -9,7 +9,7 @@ var LogList = React.createClass({
     var rows = [];
     var temp;
     var matchFound;
-    var keys = ['date', 'level', 'message'];
+    var keys = ['level', 'time', 'thread', 'module', 'file', 'line', 'msg'];
     for (var i in this.props.list) {
       i = parseInt(i);
       temp = [];
@@ -19,10 +19,10 @@ var LogList = React.createClass({
       }
       for (var j in keys) {
         j = parseInt(j);
-        if (this.props.filter && !matchFound && keys[j] === 'message') {
+        if (this.props.filter && !matchFound && keys[j] === 'msg') {
           matchFound = this.props.list[i][keys[j]].toLowerCase().indexOf(this.props.filter) > -1;
         }
-        if (keys[j] === 'date') {
+        if (keys[j] === 'time') {
           this.props.list[i][keys[j]] = new Date(this.props.list[i][keys[j]]).toLocaleString();
         }
         temp.push(React.DOM.td({key: j}, this.props.list[i][keys[j]]));
