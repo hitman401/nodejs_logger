@@ -58,4 +58,27 @@ LogController.prototype.searchLogs = function(req, res) {
   });
 };
 
+LogController.prototype.exportData = function(req, res) {
+  var logSrcId = req.params.userId;
+  logService.export(logSrcId, function(err, data) {
+    if (err) {
+      return res.status(500).send(err);
+    }
+    return res.status(200).send(data);
+  });
+};
+
+LogController.prototype.downloadLogs = function(req, res) {
+  res.download(logService.download(req.params.userId));
+};
+
+LogController.prototype.clearTemp = function(req, res) {
+  logService.clearTempFile(req.params.userId, function(err, data) {
+    if (err) {
+      return res.status(500).send(err)
+    }
+    return res.status(200).send('Done');
+  });
+};
+
 module.exports = new LogController();

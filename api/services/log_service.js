@@ -8,6 +8,7 @@ var LogService = function() {
   };
   this.LogModel = null;
   this.dbConnector = dao.getDBConnector();
+  this.fileLinks = {};
 };
 
 LogService.prototype.prepareModel = function(logSrcId) {
@@ -54,6 +55,28 @@ LogService.prototype.search = function(user, conditions, offset, limit, callback
     }
   }
   return self.dbConnector.search(self.LogModel, query, offset, limit, callback);
+};
+
+LogService.prototype.export = function(logSrcId, callback) {
+  var self = this;
+  self.prepareModel(logSrcId);
+  return self.dbConnector.export(self.LogModel, function(err, data) {
+    if (err) {
+      return callback(err);
+    }
+    self.fileLinks[logSrcId] = data;
+    callback(null, 'Done');
+  });
+};
+
+LogService.prototype.download = function(logSrcId, callback) {
+  var self = this;
+  return self.fileLinks[logSrcId];
+};
+
+LogService.prototype.clearTempFile = function(logSrcId, callback) {
+  var self = this;
+  self.dbConnector.clearTempFile(self.fileLinks[logSrcId], callback);
 };
 
 module.exports = exports = new LogService();

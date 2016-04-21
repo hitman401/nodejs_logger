@@ -23,4 +23,12 @@ DBService.prototype.search = function(Model, query, limit, callback) {
   return callback('Not Implemented');
 };
 
+DBService.prototype.export = function(Model, callback) {
+  return callback('Not Implemented');
+};
+
+DBService.prototype.clearTempFile = function(filePath, callback) {
+  return callback('Not Implemented');
+};
+
 module.exports = DBService;

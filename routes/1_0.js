@@ -7,6 +7,9 @@ router.get('/',function(req,res){
   res.sendFile('index.html');
 });
 router.get('/logs/:userId', logController.getList);
+router.get('/logs/export/:userId', logController.exportData);
+router.get('/logs/download/:userId', logController.downloadLogs);
+router.get('/logs/clearTemp/:userId', logController.clearTemp);
 router.post('/logs', logController.saveLog);
 router.get('/logs/search/:userId', logController.searchLogs);
 

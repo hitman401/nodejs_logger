@@ -83,6 +83,24 @@ window.logVisualiser.controller('logListCtrl', ['$scope', '$state', '$stateParam
         });
     };
 
+    $scope.exportLogs = function() {
+      var clearLogFile = function() {
+        $http({
+          method: 'GET',
+          url: '/logs/clearTemp/' + uid
+        }).then(function(response) {}, function(err) {})
+      };
+      $http({
+        method: 'GET',
+        url: '/logs/export/' + uid
+      }).then(function(response) {
+        var win = window.open('/logs/download/' + uid);
+        win.onbeforeunload = clearLogFile;
+      }, function(err) {
+        console.error(err);
+      });
+    };
+
     var startWorker = function() {
       var locationHash = location.hash.split('/');
       var userId = locationHash[locationHash.length - 1];
