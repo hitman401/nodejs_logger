@@ -22,13 +22,23 @@ LogService.prototype.prepareModel = function(logSrcId) {
 LogService.prototype.save = function(logData, callback) {
   var self = this;
   self.prepareModel(logData.id);
-  var socketService = require('../services/socket_service'); // TODO move this as global variable
-  self.dbConnector.save(self.LogModel, logData, function(err, data) {
+  // TODO move this as global variable
+  var socketService = require('../services/socket_service');
+  var lookupService = require('../services/nodeid_lookup_service');
+  lookupService.find(logData, function(err, logs) {
     if (err) {
-      return callback(err)
+      return callback(err);
+    }
+    if (!logs) {
+      return callback(logData);
+    }
+    for (var i in logs) {
+      self.dbConnector.save(self.LogModel, logs, function(err) {
+        console.log(err);
+      });
     }
     socketService.sendLog(data, logData.id);
-    return callback(null, data);
+    callback(null, data);
   });
 };
 

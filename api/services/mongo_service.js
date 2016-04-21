@@ -6,7 +6,9 @@ var DBService = require('./db_service');
 var MongoService = function() {
   this.db = null;
   this.MODEL_TYPES = {
-    'LOGS': 'logs'
+    'LOGS': 'logs',
+    'LOOKUP': 'node_id_lookup_table',
+    'TEMPLOG': 'temp_logs_table'
   };
 };
 
@@ -30,11 +32,19 @@ MongoService.prototype.connect = function(callback) {
 
 MongoService.prototype.getModel = function(modelType, modelName) {
   var self = this;
-  var schema = null;
-  var model = null;
+  modelName = modelName || modelType;
+  var prepareModel = function(schema) {
+    var model = mongoose.models[modelName];
+    if (!model) {
+      model = mongoose.model(modelName, new mongoose.Schema(schema, {
+                  timestamps: true
+              }));
+    }
+    return model;
+  };
   switch (modelType) {
     case self.MODEL_TYPES.LOGS:
-      schema = {
+      return prepareModel({
         level: String,
         time: { type: Date, default: Date.now },
         thread: String,
@@ -42,13 +52,20 @@ MongoService.prototype.getModel = function(modelType, modelName) {
         file: String,
         line: String,
         msg: String,
-      };
-      model = mongoose.models[modelName];
-      if (!model) {
-        model = mongoose.model(modelName, new mongoose.Schema(schema));
-      }
-      return model;
-      break;
+      });
+
+    case self.MODEL_TYPES.LOOKUP:
+      return prepareModel({
+        node_id: String,
+        log_id: String,
+      });
+
+    case self.MODEL_TYPES.TEMPLOG:
+      return prepareModel({
+        log_id: String,
+        log: {},
+      });
+
     default:
       return null;
   }
