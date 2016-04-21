@@ -1,7 +1,7 @@
 var LookUpService = function() {
   this.daoService = require('./dao_service');
-  this.lookUpDao = self.dbConnector.getModel(self.daoService.getDBConnector().MODEL_TYPES.LOOKUP);
-  this.tempLogDao = self.dbConnector.getModel(self.daoService.getDBConnector().MODEL_TYPES.TEMPLOG);
+  this.nodeIdLookup = self.dbConnector.getModel(self.daoService.getDBConnector().MODEL_TYPES.LOOKUP);
+  this.tempLog = self.dbConnector.getModel(self.daoService.getDBConnector().MODEL_TYPES.TEMPLOG);
   this.memStore = {}
 };
 
@@ -13,21 +13,21 @@ LookUpService.prototype.find = function(logData, callback) {
   var self = this;
 
   var readTempLogs = function(logId, offset, limit, callback) {
-    selself.tempLogDao.find({log_id: logId}).skip(offset).limit(limit).exec(callback);
+    self.tempLog.find({log_id: logId}).skip(offset).limit(limit).exec(callback);
   };
 
   var deleteTempLogs = function(tempLogs) {
     for (var i in tempLogs) {
-      selself.tempLogDao.findByIdAndRemove(tempLogs[i]._id, function() { });
+      self.tempLog.findByIdAndRemove(tempLogs[i]._id, function() { });
     }
   };
 
   var getNodeId = function(logId, callback) {
-    self.lookUpDao.find({log_id: logId}).exec(callback);
+    self.nodeIdLookup.find({log_id: logId}).exec(callback);
   };
 
   var updateNodeId = function(nodeId, logId, callback) {
-    self.lookUpDao.findOneAndUpdate({node_id: nodeId}, {node_id: nodeId, log_id: logId}, callback);
+    self.nodeIdLookup.findOneAndUpdate({node_id: nodeId}, {node_id: nodeId, log_id: logId}, callback);
     memStore[logId] = [];
   };
 
@@ -37,7 +37,7 @@ LookUpService.prototype.find = function(logData, callback) {
 
   var saveToTempLog = function() {
     var data = {log_id: logData.id, log: logData};
-    self.daoService.getDBConnector().save(self.tempLogDao, data, function(err) {
+    self.daoService.getDBConnector().save(self.tempLog, data, function(err) {
       callback(err);
     });
   };
