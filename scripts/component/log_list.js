@@ -3,6 +3,9 @@ var LogList = React.createClass({
     var colsHead = [];
     var heading = ['Level', 'Time', 'Thread', 'Module', 'File', 'Line', 'Message'];
     for (var i in heading) {
+      if (this.props.hiddenFields.indexOf(heading[i].toLowerCase()) !== -1) {
+        continue;
+      }
       colsHead.push(React.DOM.th({ key: i }, heading[i]));
     }
     var head = React.DOM.thead(null, colsHead);
@@ -19,6 +22,9 @@ var LogList = React.createClass({
       }
       for (var j in keys) {
         j = parseInt(j);
+        if (this.props.hiddenFields.indexOf(keys[j]) !== -1) {
+          continue;
+        }
         if (this.props.filter && !matchFound && keys[j] === 'msg') {
           matchFound = this.props.list[i][keys[j]].toLowerCase().indexOf(this.props.filter) > -1;
         }
@@ -33,9 +39,9 @@ var LogList = React.createClass({
     }
     var body = React.DOM.tbody(null, rows);
     var table = React.DOM.table( {key:'body', className:''}, [head, body] );
-    if (!this.props.isEndOfList) {
-      return React.DOM.div({key:''}, [ table, React.DOM.p({key: ''}, 'Loading..')]);
-    }
+    // if (!this.props.isEndOfList) {
+    //   return React.DOM.div({key:''}, [ table, React.DOM.p({key: ''}, 'Loading..')]);
+    // }
     return table;
   }
 });

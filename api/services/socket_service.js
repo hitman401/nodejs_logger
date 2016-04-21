@@ -11,8 +11,8 @@ Socket.prototype.register = function(server) {
   var sessions = {};
   ws.on('connection', function(socket) {
     console.log('connected');
+    var userId = null;
     socket.on('message', function(msg) {
-
       try {
         msg = msg.toString().replace(/\\/g, '/');
         msg = JSON.parse(msg);
@@ -25,18 +25,18 @@ Socket.prototype.register = function(server) {
             self.sessions[msg.id] = [];
           }
           console.log('Registered client :: ' + msg.id);
-          self.sessions[msg.id].push(socket);
+          userId = msg.id;
+          self.sessions[userId].push(socket);
           break;
         default:
           logService.save(msg, function() {});
       }
     });
 
-    socket.on('close', function(msg) {
-      if (!msg) {
+    socket.on('close', function() {
+      if (!userId) {
         return;
       }
-      var userId = msg.id;
       var index = self.sessions[userId].indexOf(socket);
       if (index === -1) {
         return;

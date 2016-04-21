@@ -7,6 +7,7 @@ var bodyParser = require('body-parser');
 var dao = require('./api/services/dao_service');
 var dbConnector = dao.getDBConnector();
 var http = require('http');
+var fse = require('fs-extra')
 
 var app = express();
 app.set('http', http);
@@ -29,6 +30,17 @@ dbConnector.connect(function(err, data) {
     throw 'Error' + err;
   }
   console.log(data);
+  var tempPath = path.join(__dirname, './temp');
+  fse.ensureDir(tempPath, function(err) {
+    if (err) {
+      throw err;
+    }
+    fse.emptyDirSync(tempPath);
+  })
+  // stats = fs.lstatSync(tempPath);
+  // if (!stats.isDirectory()) {
+  //   fs.mkdirSync('./temp');
+  // }
   var routes_1_0 = require('./routes/1_0');
 
   // TODO change url

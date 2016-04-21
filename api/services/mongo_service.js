@@ -2,6 +2,21 @@ var util = require('util');
 var config = require('../../config.json');
 var mongoose = require('mongoose');
 var DBService = require('./db_service');
+var Transform = require('stream').Transform;
+var path = require('path');
+var fs = require('fs');
+
+var createParser = function() {
+  var parser = new Transform({ objectMode: true });
+  /* jscs:disable disallowDanglingUnderscores */
+  parser._transform = function(doc, encoding, done) {
+    /* jscs:enable disallowDanglingUnderscores */
+    this.push(doc.level + ',' + doc.time + ',' + doc.thread + ',' +
+      doc.module + ',' + doc.file + ',' + doc.line + ',' + doc.msg + '\n');
+    done();
+  };
+  return parser;
+};
 
 var MongoService = function() {
   this.db = null;
@@ -85,8 +100,39 @@ MongoService.prototype.list = function(Model, limit, offset, callback) {
   Model.find().skip(offset).limit(limit).sort('-time').exec(callback);
 };
 
-MongoService.prototype.search = function(Model, query, limit, callback) {
-  Model.find(query).limit(limit).exec(callback);
+MongoService.prototype.search = function(Model, query, offset, limit, callback) {
+  Model.find(query).skip(offset).limit(limit).exec(callback);
 };
 
+MongoService.prototype.export = function(Model, callback) {
+  var generateFileName = function() {
+    return (new Date()).getTime();
+  };
+
+  var setupExport = function(callback) {
+    var filePath = path.join(__dirname, '../../temp/logs_' + generateFileName() + '.csv');
+    fs.writeFile(filePath, 'Level,Time,Thread,Module,File,Line,Message\n', function(err) {
+      if (err) {
+        return callback(err);
+      }
+      return callback(null, filePath);
+    });
+  };
+
+  setupExport(function(err, filePath) {
+    if (err) {
+      return callback(err);
+    }
+    var stream = Model.find({}, { __id: 0, __v: 0 }).batchSize(config.BATCH_SIZE).sort('-time').stream();
+    var outStream = fs.createWriteStream(filePath, { 'flags': 'a' });
+    var res = stream.pipe(createParser()).pipe(outStream);
+    res.on('finish', function() {
+      callback(null, filePath);
+    });
+  });
+};
+
+MongoService.prototype.clearTempFile = function(filePath, callback) {
+  fs.unlink(filePath, callback);
+};
 module.exports = exports = new MongoService();

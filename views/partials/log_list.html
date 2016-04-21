@@ -20,5 +20,11 @@
             </option>
         </select>
     </div>
-    <react-component name="LogList" props="{list: logs, filter: filter, isEndOfList: endOfRecords}"></react-component>
+    <label for="module_toggle">Module</label>
+    <input type="checkbox" id="module_toggle" ng-model="module_toggle" value="" ng-change="toggleHiddenField('module')" />
+    <label for="thread_toggle">Thread</label>
+    <input type="checkbox" id="thread_toggle" ng-model="thread_toggle" value="" ng-change="toggleHiddenField('thread')" />
+    <button type="button" name="exportLogs" ng-click="exportLogs()">Export</button>
+    <react-component name="LogList" props="{list: logs, filter: filter, isEndOfList: endOfRecords, hiddenFields: hiddenFields}"></react-component>
+    <button type="button" name="loadMore" ng-show="!endOfRecords" ng-click="list()">More</button>
 </div>
