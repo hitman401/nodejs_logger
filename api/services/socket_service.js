@@ -12,7 +12,6 @@ Socket.prototype.register = function(server) {
   ws.on('connection', function(socket) {
     console.log('connected');
     socket.on('message', function(msg) {
-
       try {
         msg = msg.toString().replace(/\\/g, '/');
         msg = JSON.parse(msg);
@@ -32,17 +31,17 @@ Socket.prototype.register = function(server) {
       }
     });
 
-    socket.on('close', function(msg) {
-      if (!msg) {
-        return;
-      }
-      var userId = msg.id;
-      var index = self.sessions[userId].indexOf(socket);
-      if (index === -1) {
-        return;
-      }
-      self.sessions[userId].splice(index, 1);
-    });
+    // socket.on('close', function(msg) {
+    //   if (!msg) {
+    //     return;
+    //   }
+    //   var userId = msg.id;
+    //   var index = self.sessions[userId].indexOf(socket);
+    //   if (index === -1) {
+    //     return;
+    //   }
+    //   self.sessions[userId].splice(index, 1);
+    // });
   });
 };
 

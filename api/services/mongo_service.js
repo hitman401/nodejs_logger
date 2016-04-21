@@ -68,8 +68,8 @@ MongoService.prototype.list = function(Model, limit, offset, callback) {
   Model.find().skip(offset).limit(limit).sort('-time').exec(callback);
 };
 
-MongoService.prototype.search = function(Model, query, limit, callback) {
-  Model.find(query).limit(limit).exec(callback);
+MongoService.prototype.search = function(Model, query, offset, limit, callback) {
+  Model.find(query).skip(offset).limit(limit).exec(callback);
 };
 
 module.exports = exports = new MongoService();

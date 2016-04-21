@@ -38,7 +38,7 @@ LogService.prototype.list = function(user, limit, offset, callback) {
   return self.dbConnector.list(self.LogModel, limit, offset, callback);
 };
 
-LogService.prototype.search = function(user, conditions, limit, callback) {
+LogService.prototype.search = function(user, conditions, offset, limit, callback) {
   var self = this;
   var query = {};
   self.prepareModel(user);
@@ -53,7 +53,7 @@ LogService.prototype.search = function(user, conditions, limit, callback) {
       $gte: conditions.date
     }
   }
-  return self.dbConnector.search(self.LogModel, query, limit, callback);
+  return self.dbConnector.search(self.LogModel, query, offset, limit, callback);
 };
 
 module.exports = exports = new LogService();

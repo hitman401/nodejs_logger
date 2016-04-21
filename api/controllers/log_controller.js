@@ -34,6 +34,7 @@ LogController.prototype.getList = function(req, res) {
 LogController.prototype.searchLogs = function(req, res) {
   var user = req.params.userId;
   var queryParams = req.query;
+  var offset = queryParams.offset;
   var limit = queryParams.limit;
   var conditions = {};
   if (queryParams.level) {
@@ -49,7 +50,7 @@ LogController.prototype.searchLogs = function(req, res) {
   if (!user) {
     return res.status(500).send('Property user missing');
   }
-  logService.search(user, conditions, limit, function(err, data) {
+  logService.search(user, conditions, offset, limit, function(err, data) {
     if (err) {
       return res.status(500).send(err);
     }

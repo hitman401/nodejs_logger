@@ -5,23 +5,42 @@ window.logVisualiser.controller('logListCtrl', ['$scope', '$state', '$stateParam
     }
     var PAGE_SIZE = 10;
     var uid = $stateParams.uid;
+    var filterParams = '';
 
     $scope.endOfRecords = false;
     $scope.logs = [];
+    $scope.hiddenFields = [
+      'thread',
+      'module'
+    ];
     var criteria = {};
+
+    var isCriteriaSet = function() {
+      return Object.keys(criteria).length > 0;
+    };
+
+    $scope.toggleHiddenField = function(field) {
+      var index = $scope.hiddenFields.indexOf(field);
+      if (index === -1) {
+        $scope.hiddenFields.push(field);
+        return;
+      }
+      $scope.hiddenFields.splice(index, 1);
+    };
 
     $scope.updateCriteria = function(level) {
       criteria = level ? {
         level: level
       } : {};
+      console.log(criteria);
       $scope.logs = [];
       $scope.endOfRecords = false;
       $scope.search();
     };
 
     $scope.search = function() {
-      var filterParams = '';
-      if (Object.keys(criteria).length > 0) {
+      filterParams = '';
+      if (isCriteriaSet()) {
         for (var key in criteria) {
           filterParams += '&' + key + '=' + criteria[key];
         }
@@ -43,15 +62,17 @@ window.logVisualiser.controller('logListCtrl', ['$scope', '$state', '$stateParam
     };
 
     $scope.list = function() {
-      var filterParams = '';
-      var baseUrl =
+      if (isCriteriaSet()) {
+        return this.search();
+      }
         $http({
           method: 'GET',
           url: '/logs/' + uid + '?offset=' + $scope.logs.length + '&limit=' + PAGE_SIZE
         }).then(function(response) {
-          // if (response.data.length == 0 || response.data.length < PAGE_SIZE) {
-          //   $scope.endOfRecords = true;
-          // }
+          if (response.data.length == 0 || response.data.length < PAGE_SIZE) {
+            $scope.endOfRecords = true;
+            $scope.$applyAsync();
+          }
           if (response.data.length === 0) {
             return;
           }
@@ -62,7 +83,6 @@ window.logVisualiser.controller('logListCtrl', ['$scope', '$state', '$stateParam
         });
     };
 
-
     var startWorker = function() {
       var locationHash = location.hash.split('/');
       var userId = locationHash[locationHash.length - 1];
@@ -72,7 +92,21 @@ window.logVisualiser.controller('logListCtrl', ['$scope', '$state', '$stateParam
       });
       worker.addEventListener('message', function(e) {
         console.log('Recieved', e.data);
-        $scope.logs.unshift(JSON.parse(e.data));
+        var data = JSON.parse(e.data);
+        if (isCriteriaSet()) {
+          var fields = Object.keys(criteria);
+          var valid = true;
+          for (var field in fields) {
+            if (data[fields[field]].toLowerCase() !== criteria[fields[field]].toLowerCase()) {
+              valid = false;
+              break;
+            }
+          }
+        }
+        if (!valid) {
+          return;
+        }
+        $scope.logs.unshift(data);
         $scope.$applyAsync();
       });
     };
