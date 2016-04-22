@@ -22,8 +22,8 @@ var MongoService = function() {
   this.db = null;
   this.MODEL_TYPES = {
     'LOGS': 'logs',
-    'LOOKUP': 'node_id_lookup_table',
-    'TEMPLOG': 'temp_logs_table'
+    'LOOKUP': 'node_id_lookup',
+    'TEMPLOG': 'temp_logs'
   };
 };
 

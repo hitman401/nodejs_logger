@@ -1,16 +1,18 @@
 var LookUpService = function() {
   this.daoService = require('./dao_service');
-  this.nodeIdLookup = self.dbConnector.getModel(self.daoService.getDBConnector().MODEL_TYPES.LOOKUP);
-  this.tempLog = self.dbConnector.getModel(self.daoService.getDBConnector().MODEL_TYPES.TEMPLOG);
+  var dbConnector = this.daoService.getDBConnector();
+  this.nodeIdLookup = dbConnector.getModel(dbConnector.MODEL_TYPES.LOOKUP);
+  this.tempLog = dbConnector.getModel(dbConnector.MODEL_TYPES.TEMPLOG);
   this.memStore = {}
 };
 
 LookUpService.prototype.find = function(logData, callback) {
-  if (memStore[logData.id]) {
-    memStore[logData.id].push(logData);
+  var self = this;
+
+  if (self.memStore[logData.id]) {
+    self.memStore[logData.id].push(logData);
     return callback();
   }
-  var self = this;
 
   var readTempLogs = function(logId, offset, limit, callback) {
     self.tempLog.find({log_id: logId}).skip(offset).limit(limit).exec(callback);
@@ -27,12 +29,20 @@ LookUpService.prototype.find = function(logData, callback) {
   };
 
   var updateNodeId = function(nodeId, logId, callback) {
-    self.nodeIdLookup.findOneAndUpdate({node_id: nodeId}, {node_id: nodeId, log_id: logId}, callback);
-    memStore[logId] = [];
+    self.memStore[logId] = [];
+    self.nodeIdLookup.findOneAndUpdate({node_id: nodeId}, {node_id: nodeId, log_id: logId}, function(e, d) {
+      if (e) {
+        return callback(e);
+      }
+      if (d) {
+        return callback();
+      }
+      self.daoService.getDBConnector().save(self.nodeIdLookup, {node_id: nodeId, log_id: logId}, callback);
+    });
   };
 
   var grepNodeID = function(msg) {
-    return null;
+    return msg.indexOf('nodeid:') === 0 ? msg.split(':')[1] : null;
   };
 
   var saveToTempLog = function() {
@@ -44,7 +54,7 @@ LookUpService.prototype.find = function(logData, callback) {
 
   var updateNodeIdAndClearTempLogs = function(nodeId) {
     var logs = [];
-    var onNodeIdUpdated = function(err) {
+    updateNodeId(nodeId, logData.id, function(err) {
       if (err) {
         return callback(err);
       }
@@ -56,31 +66,29 @@ LookUpService.prototype.find = function(logData, callback) {
             return callback(err);
           }
           logs = logs.concat(docs);
-          if (logs.length === limit) {
+          if (docs.length === limit) {
             offset += limit;
             return readLogs();
           }
-          deleteTempLogs(logs);
+          deleteTempLogs(docs);
           for (var i in logs) {
             logs[i].id = nodeId;
           }
           logs.push(logData);
-          logs = logs.concat(memStore[logId]);
-          delete memStore[logId];
+          logs = logs.concat(self.memStore[logData.id]);
+          delete self.memStore[logData.id];
           callback(null, logs);
         });
-        readLogs();
       };
-    };
-    updateNodeId(nodeId, logId, onNodeIdUpdated);
+      readLogs();
+    });
   };
 
-  getNodeId(function(err, docs) {
+  getNodeId(logData.id, function(err, docs) {
     if (err) {
       return callback(err);
     }
     var nodeId = (docs.length > 0) ? docs[0] : null;
-    var self = this;
     if (nodeId) {
       logData.id = nodeId;
       return callback(null, [logData]);
@@ -95,4 +103,4 @@ LookUpService.prototype.find = function(logData, callback) {
   });
 };
 
-module.exports = exports = new LookupService();
+module.exports = exports = new LookUpService();

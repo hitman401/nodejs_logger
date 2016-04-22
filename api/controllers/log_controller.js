@@ -12,7 +12,7 @@ LogController.prototype.saveLog = function(req, res) {
     if (err) {
       return res.status(500).send(err);
     }
-    res.status(200).send('Saved');
+    res.sendStatus(200);
   });
 };
 
@@ -25,7 +25,7 @@ LogController.prototype.getList = function(req, res) {
   }
   logService.list(user, limit, offset, function(err, data) {
     if (err) {
-      return res.status(500).send(data);
+      return res.status(500).send(err);
     }
     return res.status(200).send(data);
   });
