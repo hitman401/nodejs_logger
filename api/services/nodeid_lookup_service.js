@@ -65,17 +65,22 @@ LookUpService.prototype.find = function(logData, callback) {
           if (err) {
             return callback(err);
           }
-          logs = logs.concat(docs);
+          for (var i in docs) {
+            logs.push(docs[i].log);
+          }
+          deleteTempLogs(docs);
           if (docs.length === limit) {
             offset += limit;
             return readLogs();
           }
-          deleteTempLogs(docs);
+          logs.push(logData);
+          for (var i in self.memStore[logData.id]) {
+            self.memStore[logData.id][i].id = nodeId;
+            logs.push(self.memStore[logData.id][i]);
+          }
           for (var i in logs) {
             logs[i].id = nodeId;
           }
-          logs.push(logData);
-          logs = logs.concat(self.memStore[logData.id]);
           delete self.memStore[logData.id];
           callback(null, logs);
         });
@@ -88,7 +93,7 @@ LookUpService.prototype.find = function(logData, callback) {
     if (err) {
       return callback(err);
     }
-    var nodeId = (docs.length > 0) ? docs[0] : null;
+    var nodeId = (docs.length > 0) ? docs[0].node_id : null;
     if (nodeId) {
       logData.id = nodeId;
       return callback(null, [logData]);

@@ -1,6 +1,6 @@
 var logService = require('../services/log_service');
 
-var DEFAULT_LIMIT = 10;
+var DEFAULT_LIMIT = 500;
 var DEFAULT_OFFSET = 0;
 
 var LogController = function() {};
@@ -20,6 +20,11 @@ LogController.prototype.getList = function(req, res) {
   var limit = req.query.limit || DEFAULT_LIMIT;
   var offset = req.query.offset || DEFAULT_OFFSET;
   var user = req.params.userId;
+  if (isNaN(offset) || isNaN(limit)) {
+    return req.sendStatus(400);
+  }
+  offset = parseInt(offset);
+  limit = parseInt(limit);
   if (!user) {
     return req.status(500).send('Property "user" missing');
   }
@@ -47,6 +52,11 @@ LogController.prototype.searchLogs = function(req, res) {
     conditions.level = conditions.date = '';
     // return res.status(500).send('Filter property missing');
   }
+  if (isNaN(offset) || isNaN(limit)) {
+    return req.sendStatus(400);
+  }
+  offset = parseInt(offset);
+  limit = parseInt(limit);
   if (!user) {
     return res.status(500).send('Property user missing');
   }

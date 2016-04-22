@@ -47,7 +47,7 @@ Socket.prototype.register = function(server) {
 };
 
 Socket.prototype.sendLog = function(log, userId) {
-  var self = this;
+  var self = this;  
   if (!self.sessions[userId]) {
     return;
   }

@@ -97,11 +97,11 @@ MongoService.prototype.save = function(Model, payload, callback) {
 };
 
 MongoService.prototype.list = function(Model, limit, offset, callback) {
-  Model.find().skip(offset).limit(limit).sort('-time').exec(callback);
+  Model.find().skip(offset).limit(limit).sort('-_id').exec(callback);
 };
 
 MongoService.prototype.search = function(Model, query, offset, limit, callback) {
-  Model.find(query).skip(offset).limit(limit).exec(callback);
+  Model.find(query).skip(offset).limit(limit).sort('-_id').exec(callback);
 };
 
 MongoService.prototype.export = function(Model, callback) {

@@ -3,7 +3,7 @@ window.logVisualiser.controller('logListCtrl', ['$scope', '$state', '$stateParam
     if (!$stateParams.uid) {
       return $state.go('login');
     }
-    var PAGE_SIZE = 10;
+    var PAGE_SIZE = 100;
     var uid = $stateParams.uid;
     var filterParams = '';
 
@@ -109,20 +109,16 @@ window.logVisualiser.controller('logListCtrl', ['$scope', '$state', '$stateParam
         id: userId
       });
       worker.addEventListener('message', function(e) {
+        debugger;
         console.log('Recieved', e.data);
         var data = JSON.parse(e.data);
         if (isCriteriaSet()) {
           var fields = Object.keys(criteria);
-          var valid = true;
           for (var field in fields) {
             if (data[fields[field]].toLowerCase() !== criteria[fields[field]].toLowerCase()) {
-              valid = false;
-              break;
+              return;
             }
           }
-        }
-        if (!valid) {
-          return;
         }
         $scope.logs.unshift(data);
         $scope.$applyAsync();

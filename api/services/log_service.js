@@ -22,7 +22,6 @@ LogService.prototype.prepareModel = function(logSrcId) {
 
 LogService.prototype.save = function(logData, callback) {
   var self = this;
-  self.prepareModel(logData.id);
   var socketService = require('../services/socket_service');
   var lookupService = require('../services/nodeid_lookup_service');
   lookupService.find(logData, function(err, logs) {
@@ -32,14 +31,14 @@ LogService.prototype.save = function(logData, callback) {
     if (!logs) {
       return callback();
     }
-    console.log('Logs', logs);
+    self.prepareModel(logs[0].id);
     for (var i in logs) {
-      self.dbConnector.save(self.LogModel, logs, function(err) {
+      self.dbConnector.save(self.LogModel, logs[i], function(err) {
         console.log(err);
       });
     }
     // TOFIX
-    socketService.sendLog(logs.pop(), logData.id);
+    socketService.sendLog(logs[0], logs[0].id);
     callback();
   });
 };
