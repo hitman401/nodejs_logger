@@ -10,6 +10,8 @@ window.logVisualiser.controller('logListCtrl', ['$scope', '$state', '$stateParam
     $scope.endOfRecords = false;
     $scope.logs = [];
     $scope.hiddenFields = [
+      'file',
+      'line',
       'thread',
       'module'
     ];

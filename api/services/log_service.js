@@ -11,9 +11,9 @@ var LogService = function() {
   this.fileLinks = {};
 };
 
-LogService.prototype.prepareModel = function(logSrcId) {
+LogService.prototype.prepareModel = function(sessionId) {
   var self = this;
-  var modelName = logSrcId + LOG_SUFFIX;
+  var modelName = sessionId + LOG_SUFFIX;
   self.LogModel = self.dbConnector.getModel(self.dbConnector.MODEL_TYPES.LOGS, modelName);
   if (!self.LogModel) {
     throw 'Model not found';
@@ -43,16 +43,16 @@ LogService.prototype.save = function(logData, callback) {
   });
 };
 
-LogService.prototype.list = function(user, limit, offset, callback) {
+LogService.prototype.list = function(sessionId, limit, offset, callback) {
   var self = this;
-  self.prepareModel(user);
+  self.prepareModel(sessionId);
   return self.dbConnector.list(self.LogModel, limit, offset, callback);
 };
 
-LogService.prototype.search = function(user, conditions, offset, limit, callback) {
+LogService.prototype.search = function(sessionId, conditions, offset, limit, callback) {
   var self = this;
   var query = {};
-  self.prepareModel(user);
+  self.prepareModel(sessionId);
   if (conditions.level) {
     conditions.level = conditions.level.toUpperCase();
     query.level = {
@@ -67,26 +67,26 @@ LogService.prototype.search = function(user, conditions, offset, limit, callback
   return self.dbConnector.search(self.LogModel, query, offset, limit, callback);
 };
 
-LogService.prototype.export = function(logSrcId, callback) {
+LogService.prototype.export = function(sessionId, callback) {
   var self = this;
-  self.prepareModel(logSrcId);
+  self.prepareModel(sessionId);
   return self.dbConnector.export(self.LogModel, function(err, data) {
     if (err) {
       return callback(err);
     }
-    self.fileLinks[logSrcId] = data;
+    self.fileLinks[sessionId] = data;
     callback(null, 'Done');
   });
 };
 
-LogService.prototype.download = function(logSrcId, callback) {
+LogService.prototype.download = function(sessionId, callback) {
   var self = this;
-  return self.fileLinks[logSrcId];
+  return self.fileLinks[sessionId];
 };
 
-LogService.prototype.clearTempFile = function(logSrcId, callback) {
+LogService.prototype.clearTempFile = function(sessionId, callback) {
   var self = this;
-  self.dbConnector.clearTempFile(self.fileLinks[logSrcId], callback);
+  self.dbConnector.clearTempFile(self.fileLinks[sessionId], callback);
 };
 
 module.exports = exports = new LogService();
