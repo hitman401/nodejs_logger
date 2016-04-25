@@ -42,7 +42,16 @@ LookUpService.prototype.find = function(logData, callback) {
   };
 
   var grepNodeID = function(msg) {
-    return msg.indexOf('nodeid:') === 0 ? msg.split(':')[1] : null;
+    var vaultNodeId = /^Node\(\w*...\)/i;
+    var clientNodeId = /^Client\(\w*...\)/i;
+    if (vaultNodeId.test(msg)) {
+      var nodeIdStr = vaultNodeId.exec(msg)[0];
+      return nodeIdStr.substring(5, nodeIdStr.length - 4);
+    } else if (clientNodeId.test(msg)) {
+      var clientIdStr = clientNodeId.exec(msg)[0];
+      return clientIdStr.substring(5, clientIdStr.length - 4);
+    }
+    return null;
   };
 
   var saveToTempLog = function() {
@@ -99,6 +108,7 @@ LookUpService.prototype.find = function(logData, callback) {
       return callback(null, [logData]);
     } else {
       nodeId = grepNodeID(logData.msg);
+      console.log('nodeId', nodeId);
       if (!nodeId) {
         saveToTempLog();
       } else {
