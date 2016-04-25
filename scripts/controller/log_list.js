@@ -113,13 +113,12 @@ window.logVisualiser.controller('logListCtrl', ['$scope', '$state', '$stateParam
 
     var startWorker = function() {
       var locationHash = location.hash.split('/');
-      var userId = locationHash[locationHash.length - 1];
-      var worker = new Worker('/scripts/message_worker.js?userId=' + userId);
+      var worker = new Worker('/scripts/message_worker.js');
       worker.postMessage({
-        id: userId
+        id: uid,
+        serverPath: window.location.host
       });
       worker.addEventListener('message', function(e) {
-        debugger;
         console.log('Recieved', e.data);
         var data = JSON.parse(e.data);
         if (isCriteriaSet()) {
@@ -135,8 +134,8 @@ window.logVisualiser.controller('logListCtrl', ['$scope', '$state', '$stateParam
       });
     };
 
+    init();
     $scope.list();
     startWorker();
-    init();
   }
 ]);
