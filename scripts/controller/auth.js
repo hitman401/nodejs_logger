@@ -1,36 +1,16 @@
 window.logVisualiser.controller('authCtrl', ['$scope', '$state', '$http', function($scope, $state, $http) {
+  $scope.uid = null;
 
-  $scope.uid = window.localStorage.getItem('uuid');
-
-  $scope.isUIDValid = function(uid) {
-    $http({
-      method: 'GET',
-      url: '/auth/' + uid
-    }).then(function successCallback() {
-      $state.go('logs', {uid: uid});
-    }, function errorCallback(response) {
-      if (response.status === 401) {
-        alert('UID is not valid');
-      } else {
-        alert(response.statusText);
-      }
-    });
+  var init = function() {
+    localStorage.clear();
   };
 
-  $scope.viewLogs = function(uid) {
-    $state.go('logs', {uid: uid});
+  $scope.setUID = function() {
+    if (!$scope.uid || isNaN($scope.uid)) {
+      return console.error('UID must be valid and numberic');
+    }
+    localStorage.setItem('logviz_uid', $scope.uid);
+    $state.go('logs');
   };
-
-  $scope.getUID = function() {
-    $http({
-      method: 'GET',
-      url: '/auth/generateId'
-    }).then(function successCallback(response) {
-      $scope.uid = response.data;
-      window.localStorage.setItem('uuid', $scope.uid);
-    }, function errorCallback(response) {
-      alert(response.statusText);
-    });
-  };
-
+  init();
 }]);

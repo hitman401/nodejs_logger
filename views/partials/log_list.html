@@ -1,4 +1,4 @@
-<div ng-controller="logListCtrl">
+<div ng-controller="logListCtrl" ng-init="level_toggle = msg_toggle = time_toggle = true">
     <div>
         <input class="filter" type="text" ng-model="filter"
                placeholder="Type to filter the log messages from the list displayed below"/>
@@ -20,10 +20,20 @@
             </option>
         </select>
     </div>
-    <label for="module_toggle">Module</label>
-    <input type="checkbox" id="module_toggle" ng-model="module_toggle" value="" ng-change="toggleHiddenField('module')" />
-    <label for="thread_toggle">Thread</label>
+    <input type="checkbox" id="level_toggle" ng-model="level_toggle" value="" ng-change="toggleHiddenField('level')" ng-checked="{{level_toggle}}" />
+    <label for="level_toggle">Level</label>
+    <input type="checkbox" id="time_toggle" ng-model="time_toggle" value="" ng-change="toggleHiddenField('time')" ng-checked="{{time_toggle}}" />
+    <label for="time_toggle">Time</label>
     <input type="checkbox" id="thread_toggle" ng-model="thread_toggle" value="" ng-change="toggleHiddenField('thread')" />
+    <label for="thread_toggle">Thread</label>
+    <input type="checkbox" id="module_toggle" ng-model="module_toggle" value="" ng-change="toggleHiddenField('module')" />
+    <label for="module_toggle">Module</label>
+    <input type="checkbox" id="file_toggle" ng-model="file_toggle" value="" ng-change="toggleHiddenField('file')" />
+    <label for="file_toggle">File</label>
+    <input type="checkbox" id="line_toggle" ng-model="line_toggle" value="" ng-change="toggleHiddenField('line')" />
+    <label for="line_toggle">Line</label>
+    <input type="checkbox" id="msg_toggle" ng-model="msg_toggle" value="" ng-change="toggleHiddenField('msg')" ng-checked="{{msg_toggle}}" />
+    <label for="msg_toggle">Message</label>
     <button type="button" name="exportLogs" ng-click="exportLogs()">Export</button>
     <react-component name="LogList" props="{list: logs, filter: filter, isEndOfList: endOfRecords, hiddenFields: hiddenFields}"></react-component>
     <button type="button" name="loadMore" ng-show="!endOfRecords" ng-click="list()">More</button>
