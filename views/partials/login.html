@@ -1,10 +1,7 @@
 <div ng-controller="authCtrl">
-    <button ng-click="getUID()" ng-show="!uid">Get UID</button>
-    <div ng-show="uid">
-        <span>{{ uid }}</span>
-        <div style="margin: 10px">
-            <button ng-click="viewLogs(uid)">View Logs</button>
-            <button ng-click="getUID()">Get New UID</button>
-        </div>
-    </div>
+  <form name="UID_form" ng-submit="setUID()">
+    <label for="uid">Enter UID</label>
+    <input type="text" id="uid" name="uid" value="" ng-model="uid" autocomplete="off">
+    <button type="submit" name="getUID">Submit</button>
+  </form>
 </div>

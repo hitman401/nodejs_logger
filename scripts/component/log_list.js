@@ -1,9 +1,16 @@
 var LogList = React.createClass({
   render: function() {
+    if (this.props.list.length === 0) {
+      return React.DOM.div(null, [ React.DOM.h3(null, 'No logs found')]);
+    }
     var colsHead = [];
     var heading = ['Level', 'Time', 'Thread', 'Module', 'File', 'Line', 'Message'];
     for (var i in heading) {
-      if (this.props.hiddenFields.indexOf(heading[i].toLowerCase()) !== -1) {
+      var tempName = heading[i].toLowerCase();
+      if (tempName === 'message') {
+        tempName = 'msg';
+      }
+      if (this.props.hiddenFields.indexOf(tempName) !== -1) {
         continue;
       }
       colsHead.push(React.DOM.th({ key: i }, heading[i]));

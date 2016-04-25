@@ -1,10 +1,7 @@
 window.logVisualiser.controller('logListCtrl', ['$scope', '$state', '$stateParams', '$http',
   function($scope, $state, $stateParams, $http) {
-    if (!$stateParams.uid) {
-      return $state.go('login');
-    }
     var PAGE_SIZE = 100;
-    var uid = $stateParams.uid;
+    var uid = null;
     var filterParams = '';
 
     $scope.endOfRecords = false;
@@ -16,6 +13,17 @@ window.logVisualiser.controller('logListCtrl', ['$scope', '$state', '$stateParam
       'module'
     ];
     var criteria = {};
+    var init = function() {
+      uid = getUID();
+      if (uid) {
+        return;
+      }
+      $state.go('login');
+    };
+
+    var getUID = function() {
+      return localStorage.getItem('logviz_uid');
+    };
 
     var isCriteriaSet = function() {
       return Object.keys(criteria).length > 0;
@@ -129,5 +137,6 @@ window.logVisualiser.controller('logListCtrl', ['$scope', '$state', '$stateParam
 
     $scope.list();
     startWorker();
+    init();
   }
 ]);
