@@ -24,17 +24,22 @@ LogService.prototype.save = function(logData, callback) {
   var self = this;
   var socketService = require('../services/socket_service');
   var lookupService = require('../services/nodeid_lookup_service');
+  if (!logData.id) {
+    return console.log('ID not found');
+  }
   lookupService.find(logData, function(err, logs) {
     if (err) {
       return callback(err);
     }
-    if (!logs) {
+    if (!logs) {      
       return callback();
     }
     self.prepareModel(logs[0].id);
     for (var i in logs) {
       self.dbConnector.save(self.LogModel, logs[i], function(err) {
-        console.log(err);
+        if (err) {
+            console.log('Error while saving log', err);
+        }
       });
     }
     // TOFIX

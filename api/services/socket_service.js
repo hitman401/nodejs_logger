@@ -10,11 +10,10 @@ Socket.prototype.register = function(server) {
   var ws = new WebSocketServer({ server: server });
   var sessions = {};
   ws.on('connection', function(socket) {
-    console.log('connected');
     var sessionId = null;
     socket.on('message', function(msg) {
       try {
-        msg = msg.toString().replace(/\\/g, '/');
+        msg = msg.toString().replace(/\n/g, '').replace(/\\/g, '/');        
         msg = JSON.parse(msg);
       } catch(e) {
         return console.log(e.message);
