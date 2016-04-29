@@ -25,12 +25,10 @@ var Queue = function(id, lookupService) {
 
   var saveToTempLog = function(logData, done) {
     var data = {log_id: logData.id, log: logData};
-    console.log('---------------------------saving temp log');
     lookupService.daoService.getDBConnector().save(lookupService.tempLog, data, function(err) {
       if (err) {
         console.log('Error while saving in temp table', err);
       }
-      console.log('saved');
       done();
     });
   };
@@ -72,7 +70,6 @@ var Queue = function(id, lookupService) {
           if (err) {
             return console.log('Error while reading temp logs', nodeId, err);
           }
-          console.log('Temp log size', nodeId, docs.length);
           for (var i in docs) {
             logs.push(docs[i].log);
           }
@@ -83,7 +80,6 @@ var Queue = function(id, lookupService) {
           }
           logs.push(logData);
           var len = self.list.length;
-          console.log('In Queue', nodeId, self.list.length);
           while (len !== 0) {
             logs.push(self.list.shift());
             len--;
@@ -171,10 +167,9 @@ LookUpService.prototype.find = function(logData, callback) {
     var nodeId = (docs.length > 0) ? docs[0].node_id : null;
     if (nodeId) {
       logData.id = nodeId;
-      return callback(null, [logData]);
+      return callback(null, logData);
     } else {
       if (!self.queue.hasOwnProperty(logData.id)) {
-        console.log('***************creating queue', logData.id);
         self.queue[logData.id] = new Queue(logData.id, self);
       }
       self.queue[logData.id].push(logData);

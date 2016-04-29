@@ -27,23 +27,20 @@ LogService.prototype.save = function(logData, callback) {
   if (!logData.id) {
     return console.log('ID not found');
   }
-  lookupService.find(logData, function(err, logs) {
+  lookupService.find(logData, function(err, log) {
     if (err) {
       return callback(err);
     }
-    if (!logs) {      
+    if (!log) {
       return callback();
     }
-    self.prepareModel(logs[0].id);
-    for (var i in logs) {
-      self.dbConnector.save(self.LogModel, logs[i], function(err) {
-        if (err) {
-            console.log('Error while saving log', err);
-        }
-      });
-    }
-    // TOFIX
-    socketService.sendLog(logs[0], logs[0].id);
+    self.prepareModel(log.id);
+    self.dbConnector.save(self.LogModel, log, function(err) {
+      if (err) {
+          console.log('Error while saving log', err);
+      }
+    });
+    socketService.sendLog(log, log.id);
     callback();
   });
 };

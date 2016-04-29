@@ -27,9 +27,9 @@ app.use('/scripts', express.static(path.join(__dirname + '/scripts')));
 
 dbConnector.connect(function(err, data) {
   if (err) {
-    throw 'Error' + err;
-  }
-  console.log(data);
+    // throw 'Error' + err;
+    return;
+  }  
   var tempPath = path.join(__dirname, './temp');
   fse.ensureDir(tempPath, function(err) {
     if (err) {
